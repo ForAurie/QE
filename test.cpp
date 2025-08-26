@@ -4,7 +4,8 @@
 #include <vector>
 #include "QE.cpp"
 #include "BMP.cpp"
-
+#include "Camera.hpp"
+#include <algorithm>
 using namespace std;
 /*
 DisplayHDR 400 ‌：要求全屏峰值亮度≥400 cd/m²，持续亮度≥320 cd/m²。
@@ -30,25 +31,29 @@ Pixel toPixel(const std::optional<Vec3<float>>& colorOpt) {
 
 int main() {
     Vec3<float> p0(0, 0, 0), p1(-1, 0, 0), p2(0, 0, -1), p3(-1, 0, -1), p4(-1, 1, 0), p5(-1, 1, -1), p6(0, 1, -1), p7(0, 1, 0);
-    Triangle<float> tri1(p0, p1, p3, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
-    Triangle<float> tri2(p0, p3, p2, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
+    
+    Material<float>* mat = new Material<float>(MaterialType::common, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 1.5, 0.65, 64);
+    TriangleMesh<float> mesh({p0, p1, p2, p3, p4, p5, p6, p7});
+    
+    
+    mesh.insertTriangle(0, 1, 3, mat);
+    mesh.insertTriangle(0, 3, 2, mat);
 
-    Triangle<float> tri3(p1, p4, p5, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
-    Triangle<float> tri4(p1, p5, p3, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
+    mesh.insertTriangle(1, 4, 5, mat);
+    mesh.insertTriangle(1, 5, 3, mat);
 
-    Triangle<float> tri5(p3, p5, p6, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
-    Triangle<float> tri6(p3, p6, p2, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
+    mesh.insertTriangle(3, 5, 6, mat);
+    mesh.insertTriangle(3, 6, 2, mat);
 
-    Triangle<float> tri7(p0, p4, p1, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
-    Triangle<float> tri8(p0, p7, p4, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
+    mesh.insertTriangle(0, 4, 1, mat);
+    mesh.insertTriangle(0, 7, 4, mat);
 
-    Triangle<float> tri9(p7, p5, p4, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
-    Triangle<float> tri10(p7, p6, p5, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
+    mesh.insertTriangle(7, 5, 4, mat);
+    mesh.insertTriangle(7, 6, 5, mat);
 
-    Triangle<float> tri11(p0, p2, p6, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
-    Triangle<float> tri12(p0, p6, p7, false, false, Vec3<float>(0.5, 0.4, 0.9), Vec3<float>(0, 0, 0), 0.65, 1.5, 64);
+    mesh.insertTriangle(0, 2, 6, mat);
+    mesh.insertTriangle(0, 6, 7, mat);
 
-    TriangleMesh<float> mesh({tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11, tri12});
     PointLight<float> light(Vec3<float>(2, 2, 2), Vec3<float>(10000, 10000, 10000));
 
     Engine<float> engine;
@@ -67,5 +72,6 @@ int main() {
         }
     }
     saveBMP("output.bmp", image);
+    delete mat;
     return 0;
 }
